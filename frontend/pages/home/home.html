@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FaceAI - Interactive 3D Avatar</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Load dlib.js for face tracking -->
+  <script src="https://cdn.jsdelivr.net/gh/justadudewhohacks/dlib-build@master/dist/dlib.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <link rel="icon" href="data:,"> <!-- Prevent favicon requests -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Background Image -->
+  <div class="background-image"></div>
+  
+  <!-- Main Container -->
+  <div class="app-container">
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+      <div class="nav-left">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <span>FaceAI</span>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="home.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+        <a href="../login/login.html" class="nav-link"><i class="fas fa-user"></i> Login</a>
+        <a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+      </div>
+    </nav>
+
+    <!-- Welcome Content -->
+    <div class="welcome-container">
+      <div class="welcome-content">
+        <h1>Welcome to FaceAI</h1>
+        <p class="welcome-text">
+          Experience next-generation 3D avatar interaction. Upload your photo to create a personalized 3D model, 
+          then control it with your voice, facial expressions, or text input. Our AI analyzes your emotions in 
+          real-time to bring your avatar to life.
+        </p>
+        <button class="cta-button">Get Started <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- 3D Viewer Section -->
+    <div class="viewer-section">
+      <div class="viewer-container">
+        <div id="canvas-container"></div>
+        
+        <div class="viewer-controls">
+          <div class="control-group">
+            <button id="upload-image" class="btn-control">
+              <i class="fas fa-upload"></i> Upload Face
+            </button>
+            <input type="file" id="texture-upload" accept="image/*" style="display: none;" />
+          </div>
+          
+          <div class="control-group">
+            <button id="start-tracking" class="btn-control primary" onclick="FaceTracker.start()">
+              <i class="fas fa-video"></i> Start Camera
+            </button>
+            <button id="stop-tracking" class="btn-control danger" onclick="FaceTracker.stop()">
+              <i class="fas fa-stop"></i> Stop
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Interaction Panel -->
+      <div class="interaction-panel">
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="voice"><i class="fas fa-microphone"></i> Voice</button>
+          <button class="tab-btn" data-tab="text"><i class="fas fa-keyboard"></i> Text</button>
+        </div>
+        
+        <div class="tab-content" id="voice-tab">
+          <button id="startBtn" class="voice-btn">
+            <i class="fas fa-microphone-alt"></i> Start Listening
+          </button>
+          <div class="voice-result">
+            <h4>You said:</h4>
+            <p id="resultText" class="transcript">Press the microphone button to speak</p>
+          </div>
+          <div class="voice-visualizer">
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="text-tab" style="display:none;">
+          <textarea id="user-text" placeholder="Type something to analyze emotion..."></textarea>
+          <button id="analyze-text" class="analyze-btn">
+            <i class="fas fa-brain"></i> Analyze Emotion
+          </button>
+          <div id="emotion-result" class="emotion-display">
+            <div class="emotion-meter">
+              <div class="emotion-label">Happiness</div>
+              <div class="meter-bar">
+                <div class="meter-fill" style="width: 0%"></div>
+              </div>
+              <div class="emotion-value">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Face Tracking Preview (Fixed Position) 
+    <div class="tracking-preview">
+      <div class="preview-header">
+        <h4>Face Tracking</h4>
+        <div class="preview-indicator">
+          <span class="indicator-dot"></span>
+          <span>Ready</span>
+        </div>
+      </div>
+      <div class="preview-content">
+        <video id="webcam-video" autoplay muted playsinline style="display:none;"></video>
+        <canvas id="face-overlay"></canvas>
+        <canvas id="debug-canvas" style="display:none;"></canvas>
+      </div>
+    </div>
+  </div>-->
+  
+  <!-- Loading Indicator -->
+  <div id="loading-message" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Loading AI models... Please wait</p>
+    </div>
+  </div>
+
+  <!-- Three.js Libraries -->
+  <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Face Tracking Script 
+  <script src="face-tracking.js"></script>-->
+  
+  <!-- Main Application Script -->
+  <script src="C:\Users\LENOVO\Desktop\pfe\frontend\try2\main.js"></script>
+  
+  <script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.display = 'none';
+        });
+        
+        const tabId = `${btn.dataset.tab}-tab`;
+        document.getElementById(tabId).style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
